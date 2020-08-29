@@ -1,9 +1,28 @@
 require('dotenv').config();
 const express = require('express');
-const app = express();
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
 
+// setup mongo connection
+const uri = process.env.MONGO_CONNECTION_URL;
+const mongoConfig = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true,
+};
+mongoose.connect(uri, mongoConfig);
+
+mongoose.connection.on('error', (error) => {
+  console.log(error);
+  process.exit(1);
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('connected to mongo');
+});
+
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 const routes = require('./routes/main');
