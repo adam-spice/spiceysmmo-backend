@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const PORT = process.env.PORT || 3000;
 
@@ -10,6 +12,8 @@ const passwordRoutes = require('./routes/password');
 // update express settings
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cors({ credentials: true, origin: process.env.CORS_ORIGIN }));
+app.use(cookieParser());
 
 // setup routes
 app.use('/', routes);
