@@ -12,25 +12,22 @@ const passwordRoutes = require('./routes/password');
 // update express settings
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(cookieParser());
 app.use(cors({ credentials: true, origin: process.env.CORS_ORIGIN }));
-
-// require passport author
-require('./auth/auth');
+app.use(cookieParser());
 
 // setup routes
 app.use('/', routes);
 app.use('/', passwordRoutes);
 
-// catch all other routes
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: '404 - Not Found', status: 404 });
 });
 
-// handle errors
-app.use((error, req, res, next) => {
-  console.log(error);
-  res.status(error.status || 500).json({ error: error.message, status: 500 });
+// error handler
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({ error: err.status, status: 500 });
+  console.error(err);
 });
 
 app.listen(PORT, () => {
