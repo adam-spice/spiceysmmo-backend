@@ -1,8 +1,10 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
+const passport = require('passport');
 
 // setup mongo connection
 const uri = process.env.MONGO_CONNECTION_URL;
@@ -23,11 +25,14 @@ mongoose.connection.on('error', (error) => {
   process.exit(1);
 });
 
+mongoose.set('useFindAndModify', false);
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const routes = require('./routes/main');
 const passwordRoutes = require('./routes/password');
+const secureRoutes = require('./routes/secure');
 
 // update express settings
 app.use(express.urlencoded({ extended: false }));
@@ -41,6 +46,7 @@ require('./auth/auth');
 // setup routes
 app.use('/', routes);
 app.use('/', passwordRoutes);
+app.use('/', passport.authenticate('jwt', { session: false }), secureRoutes);
 
 // 404 handler
 app.use((req, res) => {
