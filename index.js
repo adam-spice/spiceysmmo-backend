@@ -35,6 +35,9 @@ app.use(express.json());
 app.use(cors({ credentials: true, origin: process.env.CORS_ORIGIN }));
 app.use(cookieParser());
 
+// import passport strategies
+require('./auth/auth');
+
 // setup routes
 app.use('/', routes);
 app.use('/', passwordRoutes);
@@ -46,7 +49,7 @@ app.use((req, res) => {
 
 // error handler
 app.use((err, req, res, next) => {
-  res.status(err.status || 500).json({ error: err.status, status: 500 });
+  res.status(err.status || 500).json({ error: err.message, status: 500 });
   console.error(err);
 });
 

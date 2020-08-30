@@ -1,24 +1,23 @@
 const passport = require('passport');
-const localStrategy = require('passport-local');
+const localStrategy = require('passport-local').Strategy;
+const UserModel = require('../models/UserModel');
 
 // handle user registration
 passport.use(
   'signup',
-  new localStrategy.Strategy(
+  new localStrategy(
     {
       usernameField: 'email',
       passwordField: 'password',
       passReqToCallback: true,
     },
-    async (request, email, password, done) => {
-      console.log(email, password);
-      console.log(request.body);
-
-      const { username } = request.body;
-      if (username && username !== 'error') {
-        return done(null, { name: 'joe' });
-      } else {
-        return done(new Error('invalid user'));
+    async (req, email, password, done) => {
+      try {
+        const { username } = req.body;
+        const user = await UserModel.create({ email, password, username });
+        return done(null, user);
+      } catch (error) {
+        return done(error);
       }
     },
   ),
@@ -33,15 +32,19 @@ passport.use(
       passwordField: 'password',
     },
     async (email, password, done) => {
-      if (email !== 'adamdidthis@hotmail.com') {
-        return done(new Error('user not found'), false);
+      try {
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+          return done(new Error('user not found'), false);
+        }
+        const valid = await user.isValidPassword(password);
+        if (!valid) {
+          return done(new Error('invalid password'), false);
+        }
+        return done(null, user);
+      } catch (error) {
+        return done(error);
       }
-
-      if (password !== 'test') {
-        return done(new Error('invalid password'), false);
-      }
-
-      return done(null, { name: 'joe' });
     },
   ),
 );
