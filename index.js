@@ -43,6 +43,20 @@ app.use(cookieParser());
 // import passport strategies
 require('./auth/auth');
 
+app.get(
+  '/game.html',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    return res.status(200).json(req.user);
+  },
+);
+
+app.use(express.static(`${__dirname}/public`));
+
+app.get('/', (req, res) => {
+  res.send(`${__dirname}/index.html`);
+});
+
 // setup routes
 app.use('/', routes);
 app.use('/', passwordRoutes);
